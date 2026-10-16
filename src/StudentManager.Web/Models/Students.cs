@@ -43,7 +43,25 @@ public class Student
     //Volná poznámka administrátora. Nepovinná.
     public string? AdminNote { get; set; }
 
-    // DALŠÍ KROK: vazba na třídu (SchoolClassId) a školní rok (SchoolYearId).
+    // vazba na třídu (SchoolClassId) a školní rok (SchoolYearId). Díky tomu vímne, který student bude patřit do jaké třídy a pro který školnmí rok je připraven. Lepší kvůli překlepům atd....vyzby už jsem dělala tak si to zopakujeme (foreign key, ...)
+
+    // BUDOUCNOST: přesun do jiné třídy = změna této hodnoty.
+    public int SchoolClassId { get; set; }
+
+    //Třída jako celý objekt – pro pohodlný přístup v kódu (student.SchoolClass.Name).
+    // Neukládá se do databáze....díky tom,u lze v kódu napssat "student.SchoolClass.Name" a dostaneme "2026A" = Nnemusí se tedy hledat ručně podle čísla => Entity Framework (knihovna pro databázi), tu přidáme později
+    // díky názvům SchoolClass a SchoolClasId pozná, že patří k sobě
+    public SchoolClass? SchoolClass { get; set; }
+
+    //Id školního roku, pro který je student připraven.
+    public int SchoolYearId { get; set; }
+
+    //Školní rok jako celý objekt.
+    public SchoolYear? SchoolYear { get; set; }
+
+
+
+
     // DALŠÍ KROK: DisplayName ("Novák Jan"), SamAccountName.
     // DALŠÍ KROK: CreatedAt, UpdatedAt – kdy byl záznam vytvořen/změněn (pro audit).
     // BUDOUCNOST (fáze 2): AdObjectGuid – propojení se skutečným účtem v AD.

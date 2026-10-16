@@ -35,4 +35,8 @@ public class SchoolClass
     //Je třída aktivní? Po ukončení studia se jen deaktivuje, nemaže se.
     // PROČ nemazat: zůstane historie – kdo kdy ve třídě byl. Asi je to zbytčné, ale uvidíme jak to bude závislé na licencích
     public bool IsActive { get; set; } = true;
+
+    
+    //Seznam studentů této třídy (opačná strana vazby). Něco jako pole. <Student> = v seznamu smí být jen objekty typu Student. Číslo ani text se do něj nevloží. =new() vytvoří práízdný seznam, aby na začátku nebyl null.
+    public List<Student> Students { get; set; } = new();
 }
