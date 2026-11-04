@@ -22,6 +22,21 @@ Webová aplikace pro IT administrátora školy: příprava, evidence a export st
 
 ### Uživatelské jméno
 - Tvar: `Prijmeni.Jmeno`, bez diakritiky → `Novak.Jan`
+- Vždy jen PRVNÍ část příjmení i jména:
+  - Nováková Svobodová Jana → `Novakova.Jana`
+  - Novák-Svoboda Jan → `Novak.Jan`
+  - Jan Pavel Novák → `Novak.Jan`
+- Velké první písmeno, zbytek malá (NOVÁK → `Novak`)
+- Diakritika se odstraní (Řehoř → `Rehor`, Nguyễn → `Nguyen`)
+- Tabulka náhrad zvláštních písmen (malá i velká):
+  ł → l, ß → ss, ø → o, đ → d, æ → ae, œ → oe
+- Ostatní nepovolené znaky se odstraní (O'Brien → `Obrien`)
+- Pokud se vypustí PÍSMENO, které není v tabulce náhrad (např. þ v Þór → `Or`),
+  → stav **Ke kontrole** (interpunkce, apostrofy apod. se vypouštějí bez kontroly)
+- Delší než 20 znaků (limit sAMAccountName) → ponechat + stav **Ke kontrole**
+- Prázdný výsledek po úpravě → stav **Ke kontrole**
+- Je-li po úpravě prázdné jméno NEBO příjmení → celý username prázdný + stav **Ke kontrole**
+  (ne `.Jan` ani `Jan`, to by vypadalo platně, ale neodpovídá pravidlu)
 - Kolize: `Novak.Jan2`, `Novak.Jan3`… a student dostane stav **Ke kontrole**
 - Dva studenti se stejným jménem NEJSOU automaticky jedna osoba
   (rozlišuje je StudentIdentifier)
