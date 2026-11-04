@@ -15,7 +15,9 @@ public record UsernameResult(string Username, bool NeedsReview, string? ReviewRe
 /// Vytvoří uživatelské jméno ve tvaru Prijmeni.Jmeno podle pravidel v docs/ROZHODNUTI.md.
 /// </summary>
 // PROČ samostatná služba: pravidla jsou na jednom místě a jdou otestovat bez databáze a webu.
-// DALŠÍ KROK: řešení kolizí (Novak.Jan2, Novak.Jan3…) – bude potřebovat databázi.
+// PROČ se služba sama neptá databáze: dostane seznam použitých jmen.
+//   Testy pak nepotřebují databázi a hromadný import může do seznamu průběžně
+//   přidávat jména přidělená v témže importu (ještě nejsou v databázi).
 // BUDOUCNOST: tabulka náhrad a limit by mohly jít do Nastavení.
 public class UsernameGenerator
 {
@@ -41,7 +43,15 @@ public class UsernameGenerator
     /// <summary>
     /// Z křestního jména a příjmení vytvoří uživatelské jméno.
     /// </summary>
-    public UsernameResult Generate(string? firstName, string? lastName)
+    /// <param name="existingUsernames">
+    /// Už použitá uživatelská jména. Při kolizi se přidá první volné číslo (Novak.Jan2…).
+    /// Bez seznamu (null) se kolize neřeší.
+    /// </param>
+    // BUDOUCNOST: do existingUsernames budou patřit i rezervovaná jména z AD
+    //   (import seznamu existujících účtů přes Get-ADUser), aby generátor nepřidělil
+    //   jméno, které už v AD existuje. Viz ROZHODNUTI.md, Úkoly před nasazením.
+    public UsernameResult Generate(string? firstName, string? lastName,
+        IEnumerable<string>? existingUsernames = null)
     {
         var reasons = new List<string>();
 
@@ -60,8 +70,15 @@ public class UsernameGenerator
             return new UsernameResult(string.Empty, true, string.Join(" ", reasons));
         }
 
-        var username = $"{last}.{first}";
+        var baseUsername = $"{last}.{first}";
+        var username = ResolveCollision(baseUsername, existingUsernames);
 
+        if (username != baseUsername)
+        {
+            reasons.Add($"Kolize: {baseUsername} je obsazené, přiděleno {username}.");
+        }
+
+        // PROČ až tady: číslo z kolize prodlužuje jméno (Novak.Jan → Novak.Jan2).
         if (username.Length > MaxLength)
         {
             reasons.Add($"Delší než {MaxLength} znaků (limit sAMAccountName).");
@@ -70,6 +87,30 @@ public class UsernameGenerator
         return reasons.Count == 0
             ? new UsernameResult(username, false, null)
             : new UsernameResult(username, true, string.Join(" ", reasons));
+    }
+
+    /// <summary>
+    /// Vrátí základní jméno, pokud je volné. Jinak první volné s číslem: Novak.Jan2, Novak.Jan3…
+    /// </summary>
+    private static string ResolveCollision(string baseUsername, IEnumerable<string>? existingUsernames)
+    {
+        if (existingUsernames is null)
+            return baseUsername;
+
+        // PROČ OrdinalIgnoreCase: v AD i v databázi (NOCASE) je novak.jan totéž co Novak.Jan.
+        var taken = new HashSet<string>(existingUsernames, StringComparer.OrdinalIgnoreCase);
+
+        if (!taken.Contains(baseUsername))
+            return baseUsername;
+
+        // PROČ první volné (ne nejvyšší + 1): absolventi se nemažou, jejich jména zůstávají
+        //   obsazená, takže se uvolněné číslo nemůže přidělit místo bývalého studenta.
+        var number = 2;
+        while (taken.Contains($"{baseUsername}{number}"))
+        {
+            number++;
+        }
+        return $"{baseUsername}{number}";
     }
 
     /// <summary>

@@ -20,6 +20,8 @@
 - Spuštění: `dotnet run --project src/StudentManager.Web`
 - Nová migrace: `dotnet ef migrations add NazevMigrace --project src/StudentManager.Web`
 - Aplikace migrací: `dotnet ef database update --project src/StudentManager.Web`
+- Testy: `dotnet test --artifacts-path $env:TEMP\StudentManagerTests`
+  (běžné `dotnet test` blokuje Smart App Control ve Windows)
 
 ## Bezpečnost
 - Jen fiktivní testovací data. Databáze (`*.db`) nesmí do Gitu.

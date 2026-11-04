@@ -38,6 +38,9 @@ Webová aplikace pro IT administrátora školy: příprava, evidence a export st
 - Je-li po úpravě prázdné jméno NEBO příjmení → celý username prázdný + stav **Ke kontrole**
   (ne `.Jan` ani `Jan`, to by vypadalo platně, ale neodpovídá pravidlu)
 - Kolize: `Novak.Jan2`, `Novak.Jan3`… a student dostane stav **Ke kontrole**
+  - přidělí se PRVNÍ VOLNÉ číslo (obsazeno `Novak.Jan` a `Novak.Jan3` → `Novak.Jan2`)
+  - porovnání bez ohledu na velikost písmen (`novak.jan` = `Novak.Jan`), stejně jako v AD
+  - limit 20 znaků se kontroluje VČETNĚ čísla (`Novak.Jan2` je o znak delší než `Novak.Jan`)
 - Dva studenti se stejným jménem NEJSOU automaticky jedna osoba
   (rozlišuje je StudentIdentifier)
 - UPN a e-mail: `Novak.Jan@sou-sos.cz`
@@ -52,6 +55,10 @@ Webová aplikace pro IT administrátora školy: příprava, evidence a export st
 | Exported | Exportován | 3 |
 
 Nové stavy přidávat vždy na konec s dalším číslem.
+
+### Smazání studenta (budoucí krok)
+- Exportovaného studenta NELZE smazat, jen deaktivovat –
+  jeho username zůstane obsazené (nesmí se přidělit nikomu jinému).
 
 ## Třídy
 
@@ -83,6 +90,9 @@ Nové stavy přidávat vždy na konec s dalším číslem.
 - [ ] Přihlášení: Windows Authentication + AD skupina administrátorů
 - [ ] Zálohování databáze
 - [ ] Kontrola, že v databázi nejsou testovací data
+- [ ] Rezervovaná jména z AD: import seznamu existujících účtů (Get-ADUser export),
+      aby generátor nepřidělil jméno, které už v AD existuje.
+      Musí být hotové před prvním ostrým exportem.
 
 ## Budoucí fáze (zatím neimplementovat)
 
