@@ -19,15 +19,19 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var student in Model.Students)
+                @foreach (var student in Model.Students)
         {
-            <tr>
+            <tr class="@(student.Status == StudentStatus.NeedsReview ? "table-warning" : "")">
                 <td>@student.LastName</td>
                 <td>@student.FirstName</td>
                 <td>@student.SchoolClass?.Name</td>
                 <td>@student.Username</td>
-                <td>@student.Status</td>
+                <td>
+                    <span class="badge @student.Status.ToBadgeClass()">@student.Status.ToCzech()</span>
+                    @if (!string.IsNullOrEmpty(student.AdminNote))
+                    {
+                        <div class="small text-muted">@student.AdminNote</div>
+                    }
+                </td>
             </tr>
         }
-    </tbody>
-</table>
