@@ -6,32 +6,72 @@
 
 <h1>Studenti</h1>
 
-<p>Celkem studentů: <strong>@Model.Students.Count</strong></p>
+@* PROČ method="get": filtry se zapíšou do adresy stránky – odkaz jde uložit nebo poslat a funguje tlačítko Zpět. *@
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-3">
+        <label asp-for="Search" class="form-label">Hledat</label>
+        <input asp-for="Search" class="form-control" placeholder="Jméno, příjmení, username, třída" />
+    </div>
+    <div class="col-md-2">
+        <label asp-for="SchoolYearId" class="form-label">Školní rok</label>
+        <select asp-for="SchoolYearId" asp-items="Model.SchoolYears" class="form-select">
+            <option value="">— vše —</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="SchoolClassId" class="form-label">Třída</label>
+        <select asp-for="SchoolClassId" asp-items="Model.SchoolClasses" class="form-select">
+            <option value="">— vše —</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Status" class="form-label">Stav</label>
+        <select asp-for="Status" asp-items="Model.Statuses" class="form-select">
+            <option value="">— vše —</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Filtrovat</button>
+        @* Zrušit = odkaz na stránku bez parametrů → všechny filtry pryč. *@
+        <a asp-page="./Index" class="btn btn-outline-secondary">Zrušit</a>
+    </div>
+</form>
 
-<table class="table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>Příjmení</th>
-            <th>Jméno</th>
-            <th>Třída</th>
-            <th>Username</th>
-            <th>Stav</th>
-        </tr>
-    </thead>
-    <tbody>
-                @foreach (var student in Model.Students)
-        {
-            <tr class="@(student.Status == StudentStatus.NeedsReview ? "table-warning" : "")">
-                <td>@student.LastName</td>
-                <td>@student.FirstName</td>
-                <td>@student.SchoolClass?.Name</td>
-                <td>@student.Username</td>
-                <td>
-                    <span class="badge @student.Status.ToBadgeClass()">@student.Status.ToCzech()</span>
-                    @if (!string.IsNullOrEmpty(student.AdminNote))
-                    {
-                        <div class="small text-muted">@student.AdminNote</div>
-                    }
-                </td>
+<p>Zobrazeno: <strong>@Model.Students.Count</strong></p>
+
+@if (Model.Students.Count == 0)
+{
+    <div class="alert alert-info">Žádní studenti neodpovídají filtru.</div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Příjmení</th>
+                <th>Jméno</th>
+                <th>Třída</th>
+                <th>Username</th>
+                <th>Stav</th>
             </tr>
-        }
+        </thead>
+        <tbody>
+            @foreach (var student in Model.Students)
+            {
+                <tr class="@(student.Status == StudentStatus.NeedsReview ? "table-warning" : "")">
+                    <td>@student.LastName</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.SchoolClass?.Name</td>
+                    <td>@student.Username</td>
+                    <td>
+                        <span class="badge @student.Status.ToBadgeClass()">@student.Status.ToCzech()</span>
+                        @if (!string.IsNullOrEmpty(student.AdminNote))
+                        {
+                            <div class="small text-muted">@student.AdminNote</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
