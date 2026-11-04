@@ -1,0 +1,33 @@
+@page
+@model StudentManager.Web.Pages.Students.IndexModel
+@{
+    ViewData["Title"] = "Studenti";
+}
+
+<h1>Studenti</h1>
+
+<p>Celkem studentů: <strong>@Model.Students.Count</strong></p>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Příjmení</th>
+            <th>Jméno</th>
+            <th>Třída</th>
+            <th>Username</th>
+            <th>Stav</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model.Students)
+        {
+            <tr>
+                <td>@student.LastName</td>
+                <td>@student.FirstName</td>
+                <td>@student.SchoolClass?.Name</td>
+                <td>@student.Username</td>
+                <td>@student.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>
