@@ -480,3 +480,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Databáze Student Manager – obsahuje osobní údaje, NIKDY do Gitu
+*.db
+*.db-shm
+*.db-wal

@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using StudentManager.Web.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+
+// Databáze: SQLite, adresa se bere z appsettings.json (ConnectionStrings:DefaultConnection)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

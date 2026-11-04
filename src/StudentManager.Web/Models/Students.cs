@@ -20,12 +20,12 @@ public class Student
     public string LastName { get; set; } = string.Empty;
 
     //Identifikátor studenta ze školní evidence. Nepovinný (string?), ale doporučený – rozliší dva studenty se stejným jménem. Našla jsem v bakalářích - byly tam 2 iodentifikační čísla, už si nepamatuju jak se lišily, ale jedno jsem říkala, že by šlo 
-    // DALŠÍ KROK: v databázi nastavíme, že musí být unikátní (pokud je vyplněný).
+    // TODO: v databázi nastavíme, že musí být unikátní (pokud je vyplněný).
     public string? StudentIdentifier { get; set; }
 
     // Uživatelské jméno ve tvaru Prijmeni.Jmeno bez diakritiky, např. Novak.Jan.
     // Při kolizi: Novak.Jan2, Novak.Jan3… a stav NeedsReview.
-    // DALŠÍ KROK: bude ho generovat služba UsernameGenerator, admin ho bude moci ručně upravit.
+    // TODO: bude ho generovat služba UsernameGenerator, admin ho bude moci ručně upravit.
     // BUDOUCNOST: sAMAccountName v AD má limit 20 znaků – přidáme samostatnou vlastnost, SamAccountName a aplikace bude na dlouhá jména upozorňovat. To samé se zamyslet jak to udělat při vícečetném jméně, např. Jana Anna NOváková, Li Thu Thi Jong, atd...
     public string Username { get; set; } = string.Empty;
 
@@ -62,8 +62,8 @@ public class Student
 
 
 
-    // DALŠÍ KROK: DisplayName ("Novák Jan"), SamAccountName.
-    // DALŠÍ KROK: CreatedAt, UpdatedAt – kdy byl záznam vytvořen/změněn (pro audit).
+    // TODO: DisplayName ("Novák Jan"), SamAccountName.
+    // TODO: CreatedAt, UpdatedAt – kdy byl záznam vytvořen/změněn (pro audit).
     // BUDOUCNOST (fáze 2): AdObjectGuid – propojení se skutečným účtem v AD.
     // BUDOUCNOST (fáze 4): přesuny mezi třídami = změna SchoolClassId, historie v auditu.
 }
