@@ -44,6 +44,9 @@ namespace StudentManager.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("SchoolClasses");
                 });
 
@@ -64,6 +67,9 @@ namespace StudentManager.Web.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("SchoolYears");
                 });
@@ -107,13 +113,21 @@ namespace StudentManager.Web.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SchoolClassId");
 
                     b.HasIndex("SchoolYearId");
+
+                    b.HasIndex("StudentIdentifier")
+                        .IsUnique()
+                        .HasFilter("StudentIdentifier IS NOT NULL");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Students");
                 });
@@ -123,13 +137,13 @@ namespace StudentManager.Web.Migrations
                     b.HasOne("StudentManager.Web.Models.SchoolClass", "SchoolClass")
                         .WithMany("Students")
                         .HasForeignKey("SchoolClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("StudentManager.Web.Models.SchoolYear", "SchoolYear")
                         .WithMany()
                         .HasForeignKey("SchoolYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("SchoolClass");
