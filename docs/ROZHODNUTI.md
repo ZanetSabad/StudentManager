@@ -64,6 +64,25 @@ Webová aplikace pro IT administrátora školy: příprava, evidence a export st
 
 Nové stavy přidávat vždy na konec s dalším číslem.
 
+### Úprava studenta
+- Student nekoliduje sám se sebou: jeho vlastní username a identifikátor se při kontrole
+  obsazenosti (i v návrhu generátoru) nepočítají.
+- Username se **nezměnilo** → stav, `ReviewReason`, UPN a e-mail zůstanou beze změny
+  (změna jen jména, třídy apod. stav nemění). Tvar username se znovu nekontroluje.
+- Username se **změnilo** (i jen velikost písmen) → stejná pravidla jako u nového studenta:
+  kontrola tvaru a obsazenosti, přepočet stavu, `ReviewReason`, UPN a e-mailu.
+  Student ve stavu **Připraven** tak spadne zpět na Koncept / Ke kontrole.
+- Student v neaktivní třídě v ní smí zůstat; přesunout ho lze jen do aktivní třídy.
+- UPN se přepočítá jen při změně username – změna domény v nastavení existující studenty
+  sama nepřepíše (hromadná změna domény = samostatný budoucí krok).
+- **Exportovaný** student: lze upravit jen Poznámku administrátora, ostatní pole jsou jen ke čtení
+  (účet už existuje v AD, změny v AD patří do fáze 4).
+
+### Schválení studenta (další krok)
+- Schválení = přechod do stavu **Připraven**, `ReviewReason` se smaže.
+- Username delší než 20 znaků (limit sAMAccountName) **nelze schválit** – je nutné ho zkrátit.
+- Kolizi (`Novak.Jan2`…) **lze schválit** – admin ověřil, že jde o jinou osobu.
+
 ### Smazání studenta (budoucí krok)
 - Exportovaného studenta NELZE smazat, jen deaktivovat –
   jeho username zůstane obsazené (nesmí se přidělit nikomu jinému).
@@ -101,6 +120,7 @@ Nové stavy přidávat vždy na konec s dalším číslem.
 - [ ] Rezervovaná jména z AD: import seznamu existujících účtů (Get-ADUser export),
       aby generátor nepřidělil jméno, které už v AD existuje.
       Musí být hotové před prvním ostrým exportem.
+- [ ] Audit: každé přidání a úprava studenta se zapíše (kdo, kdy, co se změnilo – staré a nové hodnoty).
 
 ## Budoucí fáze (zatím neimplementovat)
 

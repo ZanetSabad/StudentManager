@@ -20,6 +20,7 @@ builder.Services.Configure<SchoolOptions>(builder.Configuration.GetSection(Schoo
 // PROČ Singleton: služby si nic nepamatují, stačí jedna instance pro celou aplikaci.
 builder.Services.AddSingleton<UsernameGenerator>();
 builder.Services.AddSingleton<UsernameValidator>();
+builder.Services.AddSingleton<StudentStatusEvaluator>();
 
 var app = builder.Build();
 

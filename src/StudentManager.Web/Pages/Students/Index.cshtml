@@ -65,6 +65,7 @@ else
                 <th>Třída</th>
                 <th>Username</th>
                 <th>Stav</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -86,6 +87,10 @@ else
                         {
                             <div class="small text-muted">@student.AdminNote</div>
                         }
+                    </td>
+                    <td class="text-end">
+                        @* asp-route-id doplní id do adresy: /Students/Edit/5 *@
+                        <a asp-page="./Edit" asp-route-id="@student.Id" class="btn btn-sm btn-outline-primary">Upravit</a>
                     </td>
                 </tr>
             }

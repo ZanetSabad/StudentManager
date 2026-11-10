@@ -1,0 +1,67 @@
+@model StudentManager.Web.Pages.Students.StudentFormPageModel
+@*
+    Společná pole formuláře pro Nový student i Upravit studenta.
+    PROČ partial view: formulář je jen na jednom místě, obě stránky ho vloží přes <partial>.
+    PROČ disabled="@Model.IsLocked": když je hodnota false, Razor atribut vůbec nevypíše,
+      když true, vypíše disabled="disabled" → pole je jen ke čtení.
+      Zakázaná pole prohlížeč při odeslání vůbec neposílá.
+*@
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Input.FirstName" class="form-label"></label>
+        <input asp-for="Input.FirstName" class="form-control" autocomplete="off" disabled="@Model.IsLocked" />
+        <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Input.LastName" class="form-label"></label>
+        <input asp-for="Input.LastName" class="form-control" autocomplete="off" disabled="@Model.IsLocked" />
+        <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Input.StudentIdentifier" class="form-label"></label>
+        <input asp-for="Input.StudentIdentifier" class="form-control" placeholder="nepovinné" disabled="@Model.IsLocked" />
+        <span asp-validation-for="Input.StudentIdentifier" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Input.SchoolClassId" class="form-label"></label>
+        <select asp-for="Input.SchoolClassId" asp-items="Model.SchoolClasses" class="form-select" disabled="@Model.IsLocked">
+            <option value="">— vyberte —</option>
+        </select>
+        <span asp-validation-for="Input.SchoolClassId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Input.SchoolYearId" class="form-label"></label>
+        <select asp-for="Input.SchoolYearId" asp-items="Model.SchoolYears" class="form-select" disabled="@Model.IsLocked">
+            <option value="">— vyberte —</option>
+        </select>
+        <span asp-validation-for="Input.SchoolYearId" class="text-danger small"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Input.Username" class="form-label"></label>
+        <div class="input-group">
+            <input asp-for="Input.Username" class="form-control" autocomplete="off" disabled="@Model.IsLocked" />
+            @if (!Model.IsLocked)
+            {
+                <button type="button" class="btn btn-outline-secondary" id="suggest-username">Navrhnout znovu</button>
+            }
+        </div>
+        <span asp-validation-for="Input.Username" class="text-danger small"></span>
+        @if (!Model.IsLocked)
+        {
+            <div class="form-text">
+                @Model.UsernameHint
+                UPN a e-mail: <strong id="upn-preview"></strong>
+            </div>
+            @* Důvod kontroly od generátoru – skrytý, dokud ho server nevrátí. *@
+            <div id="username-review" class="alert alert-warning py-1 px-2 mt-2 small d-none"></div>
+        }
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Input.AdminNote" class="form-label"></label>
+        <textarea asp-for="Input.AdminNote" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.AdminNote" class="text-danger small"></span>
+    </div>
+</div>

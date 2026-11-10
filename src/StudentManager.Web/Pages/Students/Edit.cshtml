@@ -1,0 +1,52 @@
+@page "{id:int}"
+@model StudentManager.Web.Pages.Students.EditModel
+@{
+    ViewData["Title"] = "Upravit studenta";
+}
+@* PROČ "{id:int}": id je součástí adresy (/Students/Edit/5) a musí to být číslo,
+   jinak stránka vrátí 404. *@
+
+<h1>Upravit studenta</h1>
+
+<p class="mb-3">
+    <strong>@Model.Student.LastName @Model.Student.FirstName</strong>
+    <span class="badge @Model.Student.Status.ToBadgeClass() ms-2">@Model.Student.Status.ToCzech()</span>
+    @if (!string.IsNullOrEmpty(Model.Student.ReviewReason))
+    {
+        <span class="small ms-2">@Model.Student.ReviewReason</span>
+    }
+</p>
+
+@if (Model.IsLocked)
+{
+    <div class="alert alert-info col-lg-8">
+        <strong>Student je exportovaný.</strong> Jeho účet už existuje v Active Directory.
+        Změna jména, username, třídy nebo školního roku by se musela provést i v AD,
+        a to aplikace zatím neumí. Upravit lze jen poznámku administrátora.
+    </div>
+}
+
+<form method="post" class="col-lg-8"
+      id="student-form"
+      data-suggest-url="@Url.Page("./Edit", "SuggestUsername", new { id = Model.Student.Id })"
+      data-email-domain="@Model.EmailDomain">
+
+    @* Chyby, které nepatří k žádnému poli (např. selhání uložení). *@
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <partial name="_StudentFormFields" model="Model" />
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Uložit změny</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Zpět na seznam</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @* U exportovaného studenta se username nemění → skript pro návrh není potřeba. *@
+    @if (!Model.IsLocked)
+    {
+        <script src="~/js/student-form.js" asp-append-version="true"></script>
+    }
+}

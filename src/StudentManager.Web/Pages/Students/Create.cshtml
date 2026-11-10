@@ -8,163 +8,23 @@
 
 @* PROČ data-*: JavaScript si z nich přečte adresu handleru a doménu – nic není natvrdo ve skriptu. *@
 <form method="post" class="col-lg-8"
-      id="create-student-form"
+      id="student-form"
       data-suggest-url="@Url.Page("./Create", "SuggestUsername")"
       data-email-domain="@Model.EmailDomain">
 
     @* Chyby, které nepatří k žádnému poli (např. selhání uložení). *@
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label asp-for="Input.FirstName" class="form-label"></label>
-            <input asp-for="Input.FirstName" class="form-control" autocomplete="off" />
-            <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="Input.LastName" class="form-label"></label>
-            <input asp-for="Input.LastName" class="form-control" autocomplete="off" />
-            <span asp-validation-for="Input.LastName" class="text-danger small"></span>
-        </div>
+    <partial name="_StudentFormFields" model="Model" />
 
-        <div class="col-md-4">
-            <label asp-for="Input.StudentIdentifier" class="form-label"></label>
-            <input asp-for="Input.StudentIdentifier" class="form-control" placeholder="nepovinné" />
-            <span asp-validation-for="Input.StudentIdentifier" class="text-danger small"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.SchoolClassId" class="form-label"></label>
-            <select asp-for="Input.SchoolClassId" asp-items="Model.SchoolClasses" class="form-select">
-                <option value="">— vyberte —</option>
-            </select>
-            <span asp-validation-for="Input.SchoolClassId" class="text-danger small"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.SchoolYearId" class="form-label"></label>
-            <select asp-for="Input.SchoolYearId" asp-items="Model.SchoolYears" class="form-select">
-                <option value="">— vyberte —</option>
-            </select>
-            <span asp-validation-for="Input.SchoolYearId" class="text-danger small"></span>
-        </div>
-
-        <div class="col-12">
-            <label asp-for="Input.Username" class="form-label"></label>
-            <div class="input-group">
-                <input asp-for="Input.Username" class="form-control" autocomplete="off" />
-                <button type="button" class="btn btn-outline-secondary" id="suggest-username">Navrhnout znovu</button>
-            </div>
-            <span asp-validation-for="Input.Username" class="text-danger small"></span>
-            <div class="form-text">
-                Vyplní se samo podle jména a příjmení. Můžete ho ručně přepsat.
-                UPN a e-mail: <strong id="upn-preview"></strong>
-            </div>
-            @* Důvod kontroly od generátoru – skrytý, dokud ho server nevrátí. *@
-            <div id="username-review" class="alert alert-warning py-1 px-2 mt-2 small d-none"></div>
-        </div>
-
-        <div class="col-12">
-            <label asp-for="Input.AdminNote" class="form-label"></label>
-            <textarea asp-for="Input.AdminNote" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="Input.AdminNote" class="text-danger small"></span>
-        </div>
-
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary">Uložit</button>
-            <a asp-page="./Index" class="btn btn-outline-secondary">Zpět na seznam</a>
-        </div>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Uložit</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Zpět na seznam</a>
     </div>
 </form>
 
 @section Scripts {
     @* Kontrola povinných polí už v prohlížeči (jen pro pohodlí – rozhoduje vždy server). *@
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        // PROČ složené závorky kolem kódu: proměnné (const, let) platí jen uvnitř
-        //   a nesrazí se s jinými skripty na stránce.
-        {
-            const form = document.getElementById('create-student-form');
-            const firstNameInput = document.getElementById('Input_FirstName');
-            const lastNameInput = document.getElementById('Input_LastName');
-            const usernameInput = document.getElementById('Input_Username');
-            const suggestButton = document.getElementById('suggest-username');
-            const reviewHint = document.getElementById('username-review');
-            const upnPreview = document.getElementById('upn-preview');
-
-            const suggestUrl = form.dataset.suggestUrl;
-            const emailDomain = form.dataset.emailDomain;
-
-            // Automatické doplňování běží, dokud admin username ručně nezmění.
-            // Po neúspěšném uložení už v poli něco je → nepřepisovat bez vyžádání.
-            let autoFill = usernameInput.value === '';
-            let timer = null;
-            let lastRequestId = 0;
-
-            function updateUpn() {
-                const username = usernameInput.value.trim();
-                upnPreview.textContent = (username || '…') + '@@' + emailDomain;
-            }
-
-            function showReview(reason) {
-                // PROČ textContent (ne innerHTML): text se nikdy nevykoná jako HTML.
-                reviewHint.textContent = reason ? 'Ke kontrole: ' + reason : '';
-                reviewHint.classList.toggle('d-none', !reason);
-            }
-
-            async function suggest() {
-                const firstName = firstNameInput.value.trim();
-                const lastName = lastNameInput.value.trim();
-                if (!firstName || !lastName) {
-                    return;
-                }
-
-                // PROČ číslo požadavku: odpověď na starší dotaz může přijít až po novější.
-                //   Použijeme jen odpověď na poslední dotaz.
-                const requestId = ++lastRequestId;
-
-                const url = new URL(suggestUrl, window.location.origin);
-                url.searchParams.set('firstName', firstName);
-                url.searchParams.set('lastName', lastName);
-
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok || requestId !== lastRequestId || !autoFill) {
-                        return;
-                    }
-                    const data = await response.json();
-                    usernameInput.value = data.username;
-                    showReview(data.needsReview ? data.reviewReason : null);
-                    updateUpn();
-                } catch {
-                    // Server nedostupný – admin username vyplní ručně.
-                }
-            }
-
-            // Návrh až 400 ms po posledním stisku klávesy, ne po každém písmenu.
-            function scheduleSuggest() {
-                if (!autoFill) {
-                    return;
-                }
-                clearTimeout(timer);
-                timer = setTimeout(suggest, 400);
-            }
-
-            firstNameInput.addEventListener('input', scheduleSuggest);
-            lastNameInput.addEventListener('input', scheduleSuggest);
-
-            // Admin píše do pole Username → přestat ho přepisovat.
-            usernameInput.addEventListener('input', () => {
-                autoFill = false;
-                showReview(null);
-                updateUpn();
-            });
-
-            suggestButton.addEventListener('click', () => {
-                autoFill = true;
-                suggest();
-            });
-
-            updateUpn();
-        }
-    </script>
+    <script src="~/js/student-form.js" asp-append-version="true"></script>
 }
