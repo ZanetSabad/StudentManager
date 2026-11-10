@@ -78,10 +78,20 @@ Nové stavy přidávat vždy na konec s dalším číslem.
 - **Exportovaný** student: lze upravit jen Poznámku administrátora, ostatní pole jsou jen ke čtení
   (účet už existuje v AD, změny v AD patří do fáze 4).
 
-### Schválení studenta (další krok)
-- Schválení = přechod do stavu **Připraven**, `ReviewReason` se smaže.
-- Username delší než 20 znaků (limit sAMAccountName) **nelze schválit** – je nutné ho zkrátit.
+### Schválení studenta
+- Schválení = přechod do stavu **Připraven**, `ReviewReason` se smaže, poznámka admina zůstane.
+- Schválit lze jen studenta ve stavu **Koncept** nebo **Ke kontrole**
+  (Koncept taky – schválení je potvrzení, které mu chybí).
+- Pořadí kontrol (aby hláška byla co nejkonkrétnější):
+  1. stav – už **Připraven** / **Exportován** → přátelská hláška („už je schválen“ / „už je exportován“),
+  2. username delší než 20 znaků (limit sAMAccountName, VČETNĚ kolizního čísla) → **nelze schválit**,
+  3. tvar username (`UsernameValidator`) – starší záznam se špatným tvarem → **nelze schválit**.
 - Kolizi (`Novak.Jan2`…) **lze schválit** – admin ověřil, že jde o jinou osobu.
+- Odmítnuté schválení studenta nijak nezmění (stav ani `ReviewReason`).
+- Schvaluje se tlačítkem v seznamu studentů (POST s antiforgery tokenem), bez potvrzovacího dialogu.
+  Po schválení návrat na seznam se stejnými filtry (předávají se jen hodnoty filtrů, ne návratová URL).
+- Vrácení schválení: zatím jen změnou username v úpravě studenta.
+- Pravidla jsou ve službě `StudentApprovalService` (použije je i budoucí hromadné schválení).
 
 ### Smazání studenta (budoucí krok)
 - Exportovaného studenta NELZE smazat, jen deaktivovat –

@@ -17,6 +17,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zavřít"></button>
     </div>
 }
+@* Chybová zpráva (např. studenta nešlo schválit). *@
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zavřít"></button>
+    </div>
+}
 
 @* PROČ method="get": filtry se zapíšou do adresy stránky – odkaz jde uložit nebo poslat a funguje tlačítko Zpět. *@
 <form method="get" class="row g-2 align-items-end mb-3">
@@ -88,9 +96,25 @@ else
                             <div class="small text-muted">@student.AdminNote</div>
                         }
                     </td>
-                    <td class="text-end">
+                    <td class="text-end text-nowrap">
                         @* asp-route-id doplní id do adresy: /Students/Edit/5 *@
                         <a asp-page="./Edit" asp-route-id="@student.Id" class="btn btn-sm btn-outline-primary">Upravit</a>
+                        @if (student.Status is StudentStatus.Draft or StudentStatus.NeedsReview)
+                        {
+                            @* PROČ tag helper (asp-page-handler, asp-route-id): sestaví adresu
+                               /Students?handler=Approve&id=5 a sám přidá skryté pole s antiforgery
+                               tokenem – ochranu proti odeslání formuláře z cizího webu.
+                               Skrytá pole s filtry: po schválení se vrátíme na stejně vyfiltrovaný seznam.
+                               PROČ name/value a ne asp-for: asp-for by v každém řádku vytvořil
+                               stejné id="Search" a id na stránce má být jedinečné. *@
+                            <form method="post" asp-page-handler="Approve" asp-route-id="@student.Id" class="d-inline">
+                                <input type="hidden" name="Search" value="@Model.Search" />
+                                <input type="hidden" name="SchoolYearId" value="@Model.SchoolYearId" />
+                                <input type="hidden" name="SchoolClassId" value="@Model.SchoolClassId" />
+                                <input type="hidden" name="Status" value="@Model.Status" />
+                                <button type="submit" class="btn btn-sm btn-success">Schválit</button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }

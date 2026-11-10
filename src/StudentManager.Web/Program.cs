@@ -21,6 +21,7 @@ builder.Services.Configure<SchoolOptions>(builder.Configuration.GetSection(Schoo
 builder.Services.AddSingleton<UsernameGenerator>();
 builder.Services.AddSingleton<UsernameValidator>();
 builder.Services.AddSingleton<StudentStatusEvaluator>();
+builder.Services.AddSingleton<StudentApprovalService>();
 
 var app = builder.Build();
 

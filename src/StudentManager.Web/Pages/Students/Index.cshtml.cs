@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StudentManager.Web.Data;
 using StudentManager.Web.Models;
+using StudentManager.Web.Services;
 
 namespace StudentManager.Web.Pages.Students;
 
@@ -13,11 +14,13 @@ namespace StudentManager.Web.Pages.Students;
 public class IndexModel : PageModel
 {
     private readonly AppDbContext _context;
+    private readonly StudentApprovalService _approvalService;
 
-    // Databázi stránce předá aplikace sama (registrace AddDbContext v Program.cs).
-    public IndexModel(AppDbContext context)
+    // Databázi a služby stránce předá aplikace sama (registrace v Program.cs).
+    public IndexModel(AppDbContext context, StudentApprovalService approvalService)
     {
         _context = context;
+        _approvalService = approvalService;
     }
 
     /// <summary>Studenti k zobrazení v tabulce (už vyfiltrovaní).</summary>
@@ -91,6 +94,42 @@ public class IndexModel : PageModel
             .OrderBy(s => s.LastName)
             .ThenBy(s => s.FirstName)
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Tlačítko Schválit u studenta. Adresa: /Students?handler=Approve&amp;id=5 (POST).
+    /// </summary>
+    // PROČ POST, ne odkaz (GET): schválení mění data. Odkaz by šlo spustit omylem
+    //   (náhled odkazu, vyhledávač). POST formulář navíc chrání antiforgery token,
+    //   který tag helper <form> přidá sám.
+    // PROČ filtry z formuláře: Search, Status… mají [BindProperty], takže je ASP.NET
+    //   naplní i ze skrytých polí formuláře. Po schválení se vrátíme na stejně
+    //   vyfiltrovaný seznam.
+    public async Task<IActionResult> OnPostApproveAsync(int id)
+    {
+        var student = await _context.Students.FindAsync(id);
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        var result = _approvalService.Approve(student);
+
+        if (result.Approved)
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Student {student.LastName} {student.FirstName} byl schválen.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = result.Error;
+        }
+
+        // DALŠÍ KROK: zápis do auditu.
+
+        // PROČ jen hodnoty filtrů, ne celá návratová adresa: adresu by šlo podvrhnout
+        //   a přesměrovat admina na cizí web. Takhle vždy skončíme na seznamu studentů.
+        return RedirectToPage("./Index", new { Search, SchoolYearId, SchoolClassId, Status });
     }
 
     /// <summary>Naplní rozbalovací seznamy Školní rok, Třída a Stav.</summary>
