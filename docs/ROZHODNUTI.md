@@ -43,7 +43,15 @@ Webová aplikace pro IT administrátora školy: příprava, evidence a export st
   - limit 20 znaků se kontroluje VČETNĚ čísla (`Novak.Jan2` je o znak delší než `Novak.Jan`)
 - Dva studenti se stejným jménem NEJSOU automaticky jedna osoba
   (rozlišuje je StudentIdentifier)
-- UPN a e-mail: `Novak.Jan@sou-sos.cz`
+- Ruční úprava username adminem:
+  - povolené znaky: `A–Z`, `a–z`, číslice, tečka a pomlčka
+  - nesmí začínat ani končit tečkou, nesmí obsahovat dvě tečky za sebou (pravidla UPN)
+  - porušení pravidel = chyba u pole, username se neuloží
+  - obsazené username = chyba u pole, NIKDY se tiše nepřečísluje
+  - ručně přepsané username → stav **Koncept**; delší než 20 znaků → **Ke kontrole** s důvodem
+  - kontrolu dělá služba `UsernameValidator` (použije ji i import a úprava studenta)
+- Důvod stavu **Ke kontrole** se ukládá do `ReviewReason` (odděleně od poznámky admina)
+- UPN a e-mail: `Novak.Jan@sou-sos.cz` (doména z appsettings.json, sekce `School:EmailDomain`)
 - Pozor: sAMAccountName v AD má limit 20 znaků
 
 ### Stavy studenta

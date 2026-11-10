@@ -95,6 +95,9 @@ namespace StudentManager.Web.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ReviewReason")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("SchoolClassId")
                         .HasColumnType("INTEGER");
 

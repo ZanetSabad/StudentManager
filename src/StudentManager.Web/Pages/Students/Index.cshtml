@@ -4,7 +4,19 @@
     ViewData["Title"] = "Studenti";
 }
 
-<h1>Studenti</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Studenti</h1>
+    <a asp-page="./Create" class="btn btn-success">+ Nový student</a>
+</div>
+
+@* Zpráva po uložení (z TempData – zobrazí se jen jednou). *@
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zavřít"></button>
+    </div>
+}
 
 @* PROČ method="get": filtry se zapíšou do adresy stránky – odkaz jde uložit nebo poslat a funguje tlačítko Zpět. *@
 <form method="get" class="row g-2 align-items-end mb-3">
@@ -65,6 +77,11 @@ else
                     <td>@student.Username</td>
                     <td>
                         <span class="badge @student.Status.ToBadgeClass()">@student.Status.ToCzech()</span>
+                        @* Důvod kontroly (vyplňuje aplikace), pod ním poznámka admina. *@
+                        @if (!string.IsNullOrEmpty(student.ReviewReason))
+                        {
+                            <div class="small">@student.ReviewReason</div>
+                        }
                         @if (!string.IsNullOrEmpty(student.AdminNote))
                         {
                             <div class="small text-muted">@student.AdminNote</div>

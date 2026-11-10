@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudentManager.Web.Data;
+using StudentManager.Web.Options;
+using StudentManager.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,14 @@ builder.Services.AddRazorPages();
 // Databáze: SQLite, adresa se bere z appsettings.json (ConnectionStrings:DefaultConnection)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Nastavení školy (doména…) ze sekce "School" v appsettings.json.
+// Stránka si ho vyžádá jako IOptions<SchoolOptions>.
+builder.Services.Configure<SchoolOptions>(builder.Configuration.GetSection(SchoolOptions.SectionName));
+
+// PROČ Singleton: služby si nic nepamatují, stačí jedna instance pro celou aplikaci.
+builder.Services.AddSingleton<UsernameGenerator>();
+builder.Services.AddSingleton<UsernameValidator>();
 
 var app = builder.Build();
 

@@ -43,6 +43,10 @@ public class Student
     //Volná poznámka administrátora. Nepovinná.
     public string? AdminNote { get; set; }
 
+    //Proč je student ve stavu Ke kontrole (např. kolize jména, délka nad 20 znaků). Nepovinné.
+    // PROČ zvlášť od AdminNote: důvod vyplňuje aplikace, poznámku píše admin – nemají se přepisovat.
+    public string? ReviewReason { get; set; }
+
     // vazba na třídu (SchoolClassId) a školní rok (SchoolYearId). Díky tomu vímne, který student bude patřit do jaké třídy a pro který školnmí rok je připraven. Lepší kvůli překlepům atd....vyzby už jsem dělala tak si to zopakujeme (foreign key, ...)
 
     // BUDOUCNOST: přesun do jiné třídy = změna této hodnoty.
